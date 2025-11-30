@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Momo+Trust+Display&display=swap" rel="stylesheet">
+    <title>Birthday Mystery</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(120deg, #1a1a2e, #16213e);
+        color: #fff;
+        font-family:Momo Trust Display;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        flex-direction: column;
+        text-align: center;
+      }
+
+      /* Cosmic particles */
+      .particle {
+        position: fixed;
+        width: 6px;
+        height: 6px;
+        background: radial-gradient(circle, rgb(255, 0, 255), rgb(255, 51, 204));
+        border-radius: 50%;
+        pointer-events: none;
+        animation: drift 8s linear infinite;
+      }
+
+      @keyframes drift {
+        0% { transform: translate(0, 0) scale(1); opacity: 1; }
+        100% { transform: translate(var(--dx), var(--dy)) scale(0.5); opacity: 0; }
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        text-shadow: 0 0 20px #f0f, 0 0 40px #0ff;
+        font-family: 'Great Vibes', cursive
+      }
+
+      button {
+        background: none;
+        border: 2px solid #fff;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 25px;
+        cursor: pointer;
+        font-size: 1rem;
+        margin-top: 20px;
+        transition: background 0.3s ease, color 0.3s ease;
+        box-shadow: 0 0 20px #f0f;
+      }
+
+      button:hover {
+        background: #ffffff;
+        color: #16213e;
+      }
+
+      #message {
+        margin-top: 40px;
+        font-size: 1.2rem;
+        width: 80%;
+        max-width: 600px;
+        opacity: 0;
+      }
+
+      .boom {
+        position: fixed;
+        top: -10px;
+        width: 12px;
+        height: 12px;
+        background: radial-gradient(circle, #ff6ec7, #ffcc00);
+        border-radius: 50%;
+        animation: boomFall linear forwards;
+        pointer-events: none;
+      }
+
+      @keyframes boomFall {
+        0% { transform: translateY(0) scale(1); opacity: 1; }
+        100% { transform: translateY(110vh) scale(1.5); opacity: 0; }
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .floating-msg {
+        position: fixed;
+        color: #ff4dff;
+        text-shadow: 0 0 10px #ff4dff, 0 0 20px #ff00ff;
+        font-size: 1.2rem;
+        pointer-events: none;
+        animation: floatUp 1.5s linear forwards;
+      }
+
+      @keyframes floatUp {
+        0% { transform: translateY(0); opacity: 1; }
+        100% { transform: translateY(-60px); opacity: 0; }
+      }
+
+      #yt-player {
+        position: absolute;
+        width: 0;
+        height: 0;
+        opacity: 0;
+        pointer-events: none;
+      }
+      /* SPIRAL FIREWORKS */
+      .firework-particle {
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: radial-gradient(circle, #ffffff, #ff00ff, #00eaff, #ffdd00, #ff5500);
+        pointer-events: none;
+        animation: spiralMove 1.8s ease-out forwards;
+        box-shadow: 0 0 15px currentColor;
+      }
+
+      @keyframes spiralMove {
+        0% { transform: translate(0,0) scale(1); opacity: 1; }
+        100% { 
+          transform: translate(var(--dx), var(--dy)) rotate(720deg) scale(0.5); 
+          opacity: 0; 
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>&hearts;Happy brithday Palak&hearts;</h1>
+    <button id="reveal"> A mystery is wating for you 🎁</button>
+    <div id="message"></div>
+    <div id="player-container"></div>
+
+    <script>
+      const button = document.getElementById("reveal");
+      const message = document.getElementById("message");
+      let playerReady = false;
+      let player;
+
+      const lines = [
+        "🎉Happy birthday🎉",
+        "This day is not a normal day",
+        "Today is day when the god  decide create a masterpiece",
+        "And he make you",
+        "This is the day when the world's beutifull girl was born",
+        "I don’t know you fully yet, but I know this much",
+        "You are the rason of my smile",
+        "tum hi mere hara khwba ho",
+        "You are who fill the color in my life",
+        "Tum mere khushee ka karan ho ",
+        "hain main bahut galtiya  kiya hai",
+        "main Annual Function me nahi aapa raha hoon",
+        "But i am sorry for all thing 🥺",
+        "Tumna mujhesa puchha tha ki 'how i will describe you'",
+        "So maybe This song can tell you what you are for me :) ",
+        "You are my 'Savera'",
+        "I hope you like this ",
+      ];
+
+      const randomMsgs = [
+        "Loading magic...",
+        "Building surprises...",
+        "somthing is coming...",
+        "Whispering secrets...",
+        "Almost there...",
+        "Hold on tight...",
+        "Shh... it’s coming..."
+      ];
+
+      /* cosmic particles */
+      function spawnParticle() {
+        const p = document.createElement("div");
+        p.classList.add("particle");
+        p.style.left = Math.random() * 100 + "vw";
+        p.style.top = Math.random() * 100 + "vh";
+        p.style.setProperty("--dx", (Math.random() * 200 - 100) + "px");
+        p.style.setProperty("--dy", (Math.random() * 200 - 100) + "px");
+        document.body.appendChild(p);
+        setTimeout(() => p.remove(), 8000);
+      }
+      setInterval(spawnParticle, 150);
+
+      function createBoom() {
+        const boom = document.createElement("div");
+        boom.classList.add("boom");
+        boom.style.left = Math.random() * 100 + "vw";
+        boom.style.animationDuration = 2 + Math.random() + "s";
+        document.body.appendChild(boom);
+        setTimeout(() => boom.remove(), 3000);
+      }
+
+      function randomFloatingMsg() {
+        for (let i = 0; i < 3; i++) {
+          const msg = document.createElement("div");
+          msg.classList.add("floating-msg");
+          msg.textContent = randomMsgs[Math.floor(Math.random() * randomMsgs.length)];
+          msg.style.left = Math.random() * 80 + "vw";
+          msg.style.top = Math.random() * 80 + "vh";
+          document.body.appendChild(msg);
+          setTimeout(() => msg.remove(), 1500);
+        }
+      }
+
+      /* SPIRAL FIREWORK FUNCTION */
+      function launchSpiralFirework() {
+        const x = Math.random() * window.innerWidth;
+        const y = Math.random() * window.innerHeight * 0.8;
+
+        const count = 18 + Math.floor(Math.random() * 8);
+
+        for (let i = 0; i < count; i++) {
+          const p = document.createElement("div");
+          p.classList.add("firework-particle");
+
+          const angle = i * 0.35;
+          const radius = 150 + Math.random() * 150;
+
+          p.style.left = x + "px";
+          p.style.top = y + "px";
+
+          p.style.setProperty("--dx", Math.cos(angle) * radius + "px");
+          p.style.setProperty("--dy", Math.sin(angle) * radius + "px");
+
+          document.body.appendChild(p);
+          setTimeout(() => p.remove(), 2000);
+        }
+      }
+
+      function revealMessage() {
+        let delay = 0;
+        lines.forEach((line) => {
+          setTimeout(() => {
+            const p = document.createElement("p");
+            p.textContent = line;
+            p.style.animation = "fadeIn 1s forwards";
+            message.appendChild(p);
+          }, delay);
+          delay += 2000;
+        });
+
+        message.style.opacity = 1;
+
+        /* LONG SPIRAL FIREWORK SHOW (10–12 seconds) */
+        setTimeout(() => {
+          let rounds = 30;
+          const fireLoop = setInterval(() => {
+            launchSpiralFirework();
+            rounds--;
+            if (rounds <= 0) clearInterval(fireLoop);
+          }, 350);
+        }, delay + 300);
+      }
+
+      function onYouTubeIframeAPIReady() {
+        player = new YT.Player("player-container", {
+          height: "0",
+          width: "0",
+          videoId: "BxbxCcDlzkw",
+          playerVars: { autoplay: 0, loop: 1, playlist: "BxbxCcDlzkw" },
+          events: { onReady: () => { playerReady = true; player.setVolume(10);} }
+        });
+      }
+      window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
+
+      const tag = document.createElement("script");
+      tag.src = "https://www.youtube.com/iframe_api";
+      document.body.appendChild(tag);
+
+      function fadeInAudio(targetVol = 80, duration = 5000) {
+        let currentVol = 0;
+        const step = targetVol / (duration / 100);
+        const fade = setInterval(() => {
+          currentVol += step;
+          if (currentVol >= targetVol) {
+            currentVol = targetVol;
+            clearInterval(fade);
+          }
+          player.setVolume(currentVol);
+        }, 100);
+      }
+
+      button.addEventListener("click", () => {
+        button.style.display = "none";
+
+        if (playerReady && player && player.playVideo) {
+          player.playVideo();
+          fadeInAudio();
+        } else {
+          const wait = setInterval(() => {
+            if (playerReady && player.playVideo) {
+              clearInterval(wait);
+              player.playVideo();
+              fadeInAudio();
+            }
+          }, 1000);
+        }
+
+        let timer = 11;
+        const countdown = setInterval(() => {
+          randomFloatingMsg();
+          timer--;
+          if (timer <= 0) {
+            clearInterval(countdown);
+            const boomInterval = setInterval(createBoom, 100);
+            setTimeout(() => {
+              clearInterval(boomInterval);
+              revealMessage();
+            }, 3000);
+          }
+        }, 1000);
+      });
+    </script>
+  </body>
+</html>
